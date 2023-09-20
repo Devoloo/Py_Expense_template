@@ -10,7 +10,7 @@ user_questions = [
 def write_user(infos, user_id):
     f = open("users.csv","a")
     infos['id'] = user_id
-    infos['balance'] = 0
+    infos['balance'] = []
     f.write(f'{infos["id"]},{infos["name"]},{infos["balance"]}\n')
     return True
 

@@ -1,5 +1,6 @@
 from PyInquirer import prompt
 import csv
+import ast
 
 def get_users():
     users_list = []
@@ -88,7 +89,7 @@ def add_expense_to_spender(infos, spender_id, users_id):
         csv_reader = csv.reader(f)
         data = list(csv_reader)
 
-    data[int(spender_id)][2] = float(infos['amount']) - ((float(data[int(spender_id)][2]) + float(infos['amount'])) / (len(users_id)))
+    # data[int(spender_id)][2] = float(infos['amount']) - ((float(data[int(spender_id)][2]) + float(infos['amount'])) / (len(users_id)))
 
     with open("users.csv", "w") as f:
         for line in data:
@@ -104,12 +105,26 @@ def remove_amount_to_other_users(infos, spender_id, users_list):
         csv_reader = csv.reader(f)
         data = list(csv_reader)
 
+    print(data)
     amount = float(infos['amount']) / len(users_list)
 
-    for i in users_list:
-        if i != spender_id:
-            print(i, spender_id)
-            data[int(i)][2] = float(data[int(i)][2]) - amount
+    for row in data:
+        if row[0] in users_list and row[0] != spender_id:
+            
+            last_element_str = row[-1]  # Get the last element as a string
+            try:
+                # Safely evaluate the string representation to get a Python list
+                last_element_list = ast.literal_eval(last_element_str)
+                row[-1] = last_element_list  # Replace the string with the Python list
+            except (ValueError, SyntaxError):
+                # Handle the case where the string cannot be evaluated as a list
+                print(f"Unable to convert '{last_element_str}' to a list")
+
+    # Now, 'data' contains the lists as the last elements in each row, and you can work with them
+    for row in data:
+        if row[0] in users_list and row[0] != spender_id:
+            print(row)
+            row[2].append([amount, spender_id])
 
     with open("users.csv", "w") as f:
         for line in data:
